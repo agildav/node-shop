@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/agildav/shop-node#readme",
   "dependencies": {
+    "cors": "^2.8.4",
     "express": "^4.16.4"
   },
   "devDependencies": {
