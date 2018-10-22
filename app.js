@@ -1,6 +1,13 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
+
 //  Routes
 const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
