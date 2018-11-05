@@ -4,9 +4,16 @@ const mongoose = require("mongoose");
 const Product = require("../models/product");
 
 router.get("/", (req, res, next) => {
-  res.status(200).json({
-    message: "Handling GET requests to /products"
-  });
+  //  Get all products
+  Product.find()
+    .exec()
+    .then(products => res.status(200).json(products))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error: "Could not get products"
+      });
+    });
 });
 
 router.post("/", (req, res, next) => {
