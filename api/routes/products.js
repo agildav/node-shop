@@ -104,9 +104,39 @@ router.patch("/:productID", (req, res, next) => {
 });
 
 router.delete("/:productID", (req, res, next) => {
-  res.status(200).json({
-    message: "Deleted product!"
-  });
+  const productID = req.params.productID;
+  //  Validate data
+  if (productID) {
+    if (productID.length > 0) {
+      //  Valid data
+      Product.deleteOne({ _id: productID })
+        .exec()
+        .then(result => {
+          if (result) {
+            res.status(200).json(result);
+          } else
+            res.status(404).json({
+              error: "Could not delete product"
+            });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            error: "Could not remove product"
+          });
+        });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid product ID"
+      });
+    }
+  } else {
+    //  No data submitted
+    res.status(400).json({
+      error: "No product ID submitted"
+    });
+  }
 });
 
 module.exports = router;
