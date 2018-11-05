@@ -25,18 +25,19 @@ router.post("/", (req, res, next) => {
 
       product
         .save()
-        .then(result => console.log(result))
+        .then(result => {
+          console.log(result);
+          res.status(201).json({
+            message: "Handling POST requests to /products",
+            createdProduct: product
+          });
+        })
         .catch(err => {
           console.log(err);
           res.status(500).json({
             error: "Could not save product"
           });
         });
-
-      res.status(201).json({
-        message: "Handling POST requests to /products",
-        createdProduct: product
-      });
     } else {
       //  Invalid data
       res.status(400).json({
