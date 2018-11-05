@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+require("dotenv").config();
+const mongoose = require("mongoose");
 
 app.use(express.json());
 app.use(
@@ -9,6 +11,18 @@ app.use(
   })
 );
 app.use(cors());
+
+//  MongoDB Connection
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_ATLAS_USER}:${
+  process.env.MONGO_ATLAS_PASSWORD
+}@node-shop-api-8lphf.mongodb.net/test?retryWrites=true`;
+
+mongoose.connect(
+  MONGODB_URI,
+  {
+    useMongoClient: true
+  }
+);
 
 //  Routes
 const productRoutes = require("./api/routes/products");
