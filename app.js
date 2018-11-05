@@ -19,9 +19,7 @@ const MONGODB_URI = `mongodb+srv://${process.env.MONGO_ATLAS_USER}:${
 
 mongoose.connect(
   MONGODB_URI,
-  {
-    useMongoClient: true
-  }
+  { useNewUrlParser: true }
 );
 
 //  Routes
