@@ -29,7 +29,7 @@ router.post("/", (req, res, next) => {
           console.log(result);
           res.status(201).json({
             message: "Handling POST requests to /products",
-            createdProduct: product
+            createdProduct: result
           });
         })
         .catch(err => {
@@ -55,13 +55,37 @@ router.post("/", (req, res, next) => {
 //  Specific product
 router.get("/:productID", (req, res, next) => {
   const productID = req.params.productID;
-  if (productID === "special") {
-    res.status(200).json({
-      message: `You discovered the special ID: ${productID}`
-    });
+  //  Validate data
+  if (productID) {
+    if (productID.length > 0) {
+      //  Valid data
+      Product.findById(productID)
+        .exec()
+        .then(doc => {
+          if (doc) {
+            console.log(doc);
+            res.status(200).json(doc);
+          } else
+            res.status(404).json({
+              error: "Could not find product"
+            });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            error: "Could not get product"
+          });
+        });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid product ID"
+      });
+    }
   } else {
-    res.status(200).json({
-      message: "You passed an ID"
+    //  No data submitted
+    res.status(400).json({
+      error: "No product ID submitted"
     });
   }
 });
