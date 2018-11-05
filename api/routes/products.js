@@ -10,22 +10,45 @@ router.get("/", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
-  const product = {
-    name: req.body.name,
-    price: req.body.price
-  };
-
   //  Create model
   const { name, price } = req.body;
-  /*if (validation) {
-    res.status(400).json("Invalid info");
+  //  Validate data
+  if (name && price) {
+    if (name.length > 0 && price > 0) {
+      //  Valid data
+      const data = {
+        _id: new mongoose.Types.ObjectId(),
+        ...{ name },
+        ...{ price }
+      };
+      const product = new Product(data);
+
+      product
+        .save()
+        .then(result => console.log(result))
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            error: "Could not save product"
+          });
+        });
+
+      res.status(201).json({
+        message: "Handling POST requests to /products",
+        createdProduct: product
+      });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid product info"
+      });
+    }
+  } else {
+    //  No data submitted
+    res.status(400).json({
+      error: "No product info submitted"
+    });
   }
-*/
-  const product = new Product();
-  res.status(201).json({
-    message: "Handling POST requests to /products",
-    createdProduct: product
-  });
 });
 
 //  Specific product
