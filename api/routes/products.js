@@ -7,7 +7,23 @@ const Product = require("../models/product");
 router.get("/", (req, res, next) => {
   Product.find()
     .exec()
-    .then(products => res.status(200).json(products))
+    .then(products => {
+      const response = {
+        count: products.length,
+        products: products.map(product => {
+          return {
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            request: {
+              type: "GET",
+              url: "/products/" + product._id
+            }
+          };
+        })
+      };
+      res.status(200).json(response);
+    })
     .catch(err => {
       console.log(err);
       res.status(500).json({
@@ -22,23 +38,30 @@ router.post("/", (req, res, next) => {
   const { name, price } = req.body;
   //  Validate data
   if (name && price) {
-    if (name.length > 0 && price > 0) {
+    if (name.length > 0 && price >= 0) {
       //  Valid data
       const data = {
         _id: new mongoose.Types.ObjectId(),
         ...{ name },
         ...{ price }
       };
-      const product = new Product(data);
 
+      const product = new Product(data);
       product
         .save()
         .then(result => {
-          console.log(result);
-          res.status(201).json({
-            message: "Handling POST requests to /products",
-            createdProduct: result
-          });
+          const response = {
+            success: {
+              _id: result._id,
+              name: result.name,
+              price: result.price,
+              request: {
+                type: "GET",
+                url: "/products/" + result._id
+              }
+            }
+          };
+          res.status(201).json(response);
         })
         .catch(err => {
           console.log(err);
@@ -68,10 +91,10 @@ router.get("/:productID", (req, res, next) => {
     if (productID.length > 0) {
       //  Valid data
       Product.findById(productID)
+        .select("-__v") //  Exclude version
         .exec()
         .then(doc => {
           if (doc) {
-            console.log(doc);
             res.status(200).json(doc);
           } else
             res.status(404).json({
@@ -112,23 +135,39 @@ router.patch("/:productID", (req, res, next) => {
         //  [{propName: "", value: ""}]
         updateOps[ops.propName] = ops.value;
       }
-      //  TODO: Validate req.body data
-      Product.updateOne({ _id: productID }, { $set: updateOps })
-        .exec()
-        .then(result => {
-          if (result) {
-            res.status(200).json(result);
-          } else
-            res.status(404).json({
-              error: "Could not update product"
+      //  Validate req.body data
+      if (updateOps.name || updateOps.price) {
+        if (
+          (updateOps.name && updateOps.name.length > 0) ||
+          (updateOps.price && updateOps.price >= 0)
+        ) {
+          Product.updateOne({ _id: productID }, { $set: updateOps })
+            .exec()
+            .then(result => {
+              if (result) {
+                res.status(200).json(result);
+              } else
+                res.status(404).json({
+                  error: "Could not update product"
+                });
+            })
+            .catch(err => {
+              console.log(err);
+              res.status(500).json({
+                error: "Could not patch product"
+              });
             });
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({
-            error: "Could not patch product"
+        } else {
+          res.status(400).json({
+            message: "Invalid data submitted"
           });
+        }
+      } else {
+        //  No data submitted
+        res.status(200).json({
+          message: "No data submitted"
         });
+      }
     } else {
       //  Invalid data
       res.status(400).json({
@@ -154,7 +193,7 @@ router.delete("/:productID", (req, res, next) => {
         .exec()
         .then(result => {
           if (result) {
-            res.status(200).json(result);
+            res.status(200).json("Product deleted");
           } else
             res.status(404).json({
               error: "Could not delete product"
