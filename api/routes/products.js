@@ -3,8 +3,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Product = require("../models/product");
 
+//  Get all products
 router.get("/", (req, res, next) => {
-  //  Get all products
   Product.find()
     .exec()
     .then(products => res.status(200).json(products))
@@ -16,6 +16,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
+//  Create a product
 router.post("/", (req, res, next) => {
   //  Create model
   const { name, price } = req.body;
@@ -97,12 +98,52 @@ router.get("/:productID", (req, res, next) => {
   }
 });
 
+//  Update a product
 router.patch("/:productID", (req, res, next) => {
-  res.status(200).json({
-    message: "Updated product!"
-  });
+  const productID = req.params.productID;
+  //  Validate data
+  if (productID) {
+    if (productID.length > 0) {
+      //  Valid data
+      const updateOps = {};
+      for (const ops of req.body) {
+        //  Req.body must be one of:
+        //  [{propName: "", value: ""}, {"propName": "", value: ""}]
+        //  [{propName: "", value: ""}]
+        updateOps[ops.propName] = ops.value;
+      }
+      //  TODO: Validate req.body data
+      Product.updateOne({ _id: productID }, { $set: updateOps })
+        .exec()
+        .then(result => {
+          if (result) {
+            res.status(200).json(result);
+          } else
+            res.status(404).json({
+              error: "Could not update product"
+            });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({
+            error: "Could not patch product"
+          });
+        });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid product ID"
+      });
+    }
+  } else {
+    //  No data submitted
+    res.status(400).json({
+      error: "No product ID submitted"
+    });
+  }
 });
 
+//  Delete a product
 router.delete("/:productID", (req, res, next) => {
   const productID = req.params.productID;
   //  Validate data
