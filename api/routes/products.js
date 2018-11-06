@@ -25,7 +25,6 @@ router.get("/", (req, res, next) => {
       res.status(200).json(response);
     })
     .catch(err => {
-      console.log(err);
       res.status(500).json({
         error: "Could not get products"
       });
@@ -64,7 +63,6 @@ router.post("/", (req, res, next) => {
           res.status(201).json(response);
         })
         .catch(err => {
-          console.log(err);
           res.status(500).json({
             error: "Could not save product"
           });
@@ -102,7 +100,6 @@ router.get("/:productID", (req, res, next) => {
             });
         })
         .catch(err => {
-          console.log(err);
           res.status(500).json({
             error: "Could not get product"
           });
@@ -152,7 +149,6 @@ router.patch("/:productID", (req, res, next) => {
                 });
             })
             .catch(err => {
-              console.log(err);
               res.status(500).json({
                 error: "Could not patch product"
               });
@@ -200,7 +196,6 @@ router.delete("/:productID", (req, res, next) => {
             });
         })
         .catch(err => {
-          console.log(err);
           res.status(500).json({
             error: "Could not remove product"
           });

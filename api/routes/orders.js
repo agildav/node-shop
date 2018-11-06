@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+
 const Order = require("../models/order");
+const Product = require("../models/product");
 
 router.get("/", (req, res, next) => {
   Order.find()
@@ -24,7 +26,6 @@ router.get("/", (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
       res.status(500).json({
         error: "Could not get orders"
       });
@@ -32,17 +33,25 @@ router.get("/", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
-  const { productID, quantity = 1 } = req.body;
   //  Quantity defaults to 1
+  const { productID, quantity = 1 } = req.body;
+  //  Validate data
   if (productID && productID.length > 0 && quantity > 0) {
-    const order = new Order({
-      _id: mongoose.Types.ObjectId(),
-      product: productID,
-      quantity
-    });
+    //  Check if product exists
+    Product.findById(productID)
+      .exec()
+      .then(product => {
+        if (!product) {
+          throw new Error("Product not found");
+        }
 
-    order
-      .save()
+        const order = new Order({
+          _id: mongoose.Types.ObjectId(),
+          product: productID,
+          quantity
+        });
+        return order.save();
+      })
       .then(result => {
         const response = {
           success: {
@@ -58,9 +67,8 @@ router.post("/", (req, res, next) => {
         res.status(201).json(response);
       })
       .catch(err => {
-        console.log(err);
-        res.status(500).json({
-          error: "Could not save order"
+        return res.status(500).json({
+          error: "Invalid product order"
         });
       });
   } else {
