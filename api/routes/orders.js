@@ -8,6 +8,7 @@ const Product = require("../models/product");
 router.get("/", (req, res, next) => {
   Order.find()
     .select("-__v")
+    .populate("product", "name price")
     .exec()
     .then(docs => {
       res.status(200).json({
@@ -77,17 +78,75 @@ router.post("/", (req, res, next) => {
 });
 
 router.get("/:orderID", (req, res, next) => {
-  res.status(201).json({
-    message: "Order details",
-    orderID: req.params.orderID
-  });
+  const orderID = req.params.orderID;
+  //  Validate data
+  if (orderID) {
+    if (orderID.length > 0) {
+      //  Valid data
+      Order.findById(orderID)
+        .select("-__v") //  Exclude version
+        .populate("product", "-__v")
+        .exec()
+        .then(doc => {
+          if (doc) {
+            res.status(200).json(doc);
+          } else
+            res.status(404).json({
+              error: "Could not find order"
+            });
+        })
+        .catch(err => {
+          res.status(500).json({
+            error: "Could not get order"
+          });
+        });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid order ID"
+      });
+    }
+  } else {
+    //  No data submitted
+    res.status(400).json({
+      error: "No order ID submitted"
+    });
+  }
 });
 
 router.delete("/:orderID", (req, res, next) => {
-  res.status(201).json({
-    message: "Order deleted",
-    orderID: req.params.orderID
-  });
+  const orderID = req.params.orderID;
+  //  Validate data
+  if (orderID) {
+    if (orderID.length > 0) {
+      //  Valid data
+      Order.deleteOne({ _id: orderID })
+        .exec()
+        .then(result => {
+          if (result.n > 0) {
+            res.status(200).json("Order deleted");
+          } else
+            res.status(404).json({
+              error: "Could not delete order"
+            });
+        })
+        .catch(err => {
+          res.status(500).json({
+            error: "Could not remove order"
+          });
+        });
+    } else {
+      //  Invalid data
+      res.status(400).json({
+        error: "Invalid order ID"
+      });
+    }
+  } else {
+    //  No data submitted
+    res.status(400).json({
+      error: "No order ID submitted"
+    });
+  }
 });
 
 module.exports = router;
