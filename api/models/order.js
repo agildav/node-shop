@@ -6,9 +6,10 @@ const orderSchema = mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,
     //  Connect this model to Product model
-    ref: "Product"
+    ref: "Product",
+    required: true
   },
-  quantity: { type: Number, default: 1 }
+  quantity: Number
 });
 
 //  Model
