@@ -188,7 +188,7 @@ router.delete("/:productID", (req, res, next) => {
       Product.deleteOne({ _id: productID })
         .exec()
         .then(result => {
-          if (result) {
+          if (result.n > 0) {
             res.status(200).json("Product deleted");
           } else
             res.status(404).json({

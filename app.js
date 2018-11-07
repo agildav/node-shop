@@ -21,14 +21,17 @@ mongoose.connect(
   MONGODB_URI,
   { useNewUrlParser: true }
 );
+mongoose.set("useCreateIndex", true);
 
 //  Routes
 const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
+const userRoutes = require("./api/routes/user");
 
 //  Controllers
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
+app.use("/user", userRoutes);
 
 //  Error pages
 app.use((req, res, next) => {
