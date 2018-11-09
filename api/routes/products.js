@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+
 const Product = require("../models/product");
+const checkAuth = require("../middleware/checkAuth");
 
 //  Get all products
 router.get("/", (req, res, next) => {
@@ -32,7 +34,7 @@ router.get("/", (req, res, next) => {
 });
 
 //  Create a product
-router.post("/", (req, res, next) => {
+router.post("/", checkAuth, (req, res, next) => {
   //  Create model
   const { name, price } = req.body;
   //  Validate data
@@ -119,7 +121,7 @@ router.get("/:productID", (req, res, next) => {
 });
 
 //  Update a product
-router.patch("/:productID", (req, res, next) => {
+router.patch("/:productID", checkAuth, (req, res, next) => {
   const productID = req.params.productID;
   //  Validate data
   if (productID) {
@@ -179,7 +181,7 @@ router.patch("/:productID", (req, res, next) => {
 });
 
 //  Delete a product
-router.delete("/:productID", (req, res, next) => {
+router.delete("/:productID", checkAuth, (req, res, next) => {
   const productID = req.params.productID;
   //  Validate data
   if (productID) {

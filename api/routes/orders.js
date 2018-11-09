@@ -5,7 +5,9 @@ const mongoose = require("mongoose");
 const Order = require("../models/order");
 const Product = require("../models/product");
 
-router.get("/", (req, res, next) => {
+const checkAuth = require("../middleware/checkAuth");
+
+router.get("/", checkAuth, (req, res, next) => {
   Order.find()
     .select("-__v")
     .populate("product", "name price")
@@ -33,7 +35,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", checkAuth, (req, res, next) => {
   //  Quantity defaults to 1
   const { productID, quantity = 1 } = req.body;
   //  Validate data
@@ -77,7 +79,7 @@ router.post("/", (req, res, next) => {
   }
 });
 
-router.get("/:orderID", (req, res, next) => {
+router.get("/:orderID", checkAuth, (req, res, next) => {
   const orderID = req.params.orderID;
   //  Validate data
   if (orderID) {
@@ -114,7 +116,7 @@ router.get("/:orderID", (req, res, next) => {
   }
 });
 
-router.delete("/:orderID", (req, res, next) => {
+router.delete("/:orderID", checkAuth, (req, res, next) => {
   const orderID = req.params.orderID;
   //  Validate data
   if (orderID) {
