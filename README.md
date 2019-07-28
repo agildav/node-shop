@@ -1,2 +1,2 @@
-# shop-node
-RESTful node.js API (shop)
+# node-shop
+RESTful Node.js shopping API 
